@@ -1,4 +1,4 @@
-
+hi
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -610,6 +610,429 @@ function clearDemoData() {
 loadData();
 renderAll();
 updateProfile();
+</script>
+
+</body>
+  </html>
+  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STRIPON</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #101014;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding-bottom: 75px;
+}
+
+header {
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #18181f;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.logo {
+  color: #ff3155;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #ff3155;
+  color: white;
+}
+
+.search {
+  margin: 15px;
+  width: calc(100% - 30px);
+  padding: 13px;
+  border: 1px solid #333;
+  border-radius: 10px;
+  background: #202027;
+  color: white;
+}
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 12px;
+}
+
+.tabs button {
+  background: #292932;
+  white-space: nowrap;
+}
+
+.tabs button.active {
+  background: #ff3155;
+}
+
+.page {
+  display: none;
+  padding: 15px;
+}
+
+.page.active {
+  display: block;
+}
+
+.video-card {
+  background: #202027;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.video-card video {
+  width: 100%;
+  max-height: 400px;
+  background: black;
+}
+
+.video-info {
+  padding: 13px;
+}
+
+.video-info p {
+  color: #aaa;
+  margin-top: 7px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 13px;
+  margin: 10px 0;
+  background: #202027;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 8px;
+}
+
+.game {
+  padding: 18px;
+  background: #202027;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+
+.profile {
+  text-align: center;
+  padding: 25px;
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #ff3155;
+  display: grid;
+  place-items: center;
+  font-size: 35px;
+  margin: auto auto 15px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #18181f;
+  display: flex;
+  justify-content: space-around;
+  padding: 13px 5px;
+  z-index: 10;
+}
+
+.bottom-nav button {
+  background: transparent;
+  padding: 8px 5px;
+  font-size: 12px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">STRIPON</div>
+  <button onclick="showPage('posting')">+ Create</button>
+</header>
+
+<input class="search" id="search"
+placeholder="Search videos..."
+oninput="searchVideos()">
+
+<div class="tabs">
+  <button class="active" onclick="showPage('all',this)">All</button>
+  <button onclick="showPage('shorts',this)">Shorts</button>
+  <button onclick="showPage('posting',this)">Posting</button>
+  <button onclick="showPage('gaming',this)">Gaming</button>
+  <button onclick="showPage('profile',this)">Profile</button>
+</div>
+
+<!-- ALL VIDEOS -->
+<section id="all" class="page active">
+  <h2>Discover videos</h2>
+  <div id="allVideos">
+    <p style="color:#aaa;margin-top:15px">
+      Your videos will appear here after you add them.
+    </p>
+  </div>
+</section>
+
+<!-- SHORTS -->
+<section id="shorts" class="page">
+  <h2>STRIPON Shorts</h2>
+  <div id="shortVideos">
+    <p style="color:#aaa;margin-top:15px">
+      Your short videos will appear here.
+    </p>
+  </div>
+</section>
+
+<!-- POSTING -->
+<section id="posting" class="page">
+  <h2>Create a post</h2>
+  <p style="color:#aaa;margin-top:8px">
+    Select a video from your phone.
+  </p>
+
+  <input type="text" id="videoTitle"
+  placeholder="Enter video title">
+
+  <input type="file" id="videoFile"
+  accept="video/*">
+
+  <video id="preview" controls
+  style="display:none;width:100%;margin-top:10px">
+  </video>
+
+  <button onclick="uploadVideo()">Publish video</button>
+</section>
+
+<!-- GAMING -->
+<section id="gaming" class="page">
+  <h2>STRIPON Gaming</h2>
+  <p style="color:#aaa;margin:10px 0">
+    Discover online games.
+  </p>
+
+  <div class="game">
+    <h3>CrazyGames</h3>
+    <p>Explore browser games.</p>
+    <br>
+    <button onclick="openGame('https://www.crazygames.com/')">
+      Explore games
+    </button>
+  </div>
+
+  <div class="game">
+    <h3>Poki</h3>
+    <p>Play games online.</p>
+    <br>
+    <button onclick="openGame('https://poki.com/')">
+      Explore games
+    </button>
+  </div>
+
+  <div class="game">
+    <h3>Y8 Games</h3>
+    <p>Discover more games.</p>
+    <br>
+    <button onclick="openGame('https://www.y8.com/')">
+      Explore games
+    </button>
+  </div>
+</section>
+
+<!-- PROFILE -->
+<section id="profile" class="page">
+  <div class="profile">
+    <div class="avatar">S</div>
+    <h2 id="username">STRIPON User</h2>
+    <p style="color:#aaa;margin:10px">
+      Welcome to your profile.
+    </p>
+
+    <input id="newUsername"
+    placeholder="Change username">
+
+    <button onclick="changeUsername()">
+      Save profile
+    </button>
+
+    <h3 style="margin-top:25px">My activity</h3>
+    <p id="videoCount" style="margin-top:10px">
+      Videos posted: 0
+    </p>
+  </div>
+</section>
+
+<nav class="bottom-nav">
+  <button onclick="showPage('all')">🏠<br>Home</button>
+  <button onclick="showPage('shorts')">▶<br>Shorts</button>
+  <button onclick="showPage('posting')">＋<br>Post</button>
+  <button onclick="showPage('gaming')">🎮<br>Gaming</button>
+  <button onclick="showPage('profile')">👤<br>Profile</button>
+</nav>
+
+<script>
+let videos = [];
+
+function showPage(page, button) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+  });
+
+  document.getElementById(page).classList.add('active');
+
+  document.querySelectorAll('.tabs button').forEach(b => {
+    b.classList.remove('active');
+  });
+
+  if (button) button.classList.add('active');
+}
+
+document.getElementById('videoFile').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('video/')) {
+    alert('Please select a video file.');
+    return;
+  }
+
+  const preview = document.getElementById('preview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+});
+
+function uploadVideo() {
+  const file = document.getElementById('videoFile').files[0];
+  const title = document.getElementById('videoTitle').value.trim();
+
+  if (!file || !title) {
+    alert('Add a title and select a video.');
+    return;
+  }
+
+  const video = {
+    title: title,
+    url: URL.createObjectURL(file),
+    short: file.size < 25 * 1024 * 1024
+  };
+
+  videos.unshift(video);
+  displayVideos();
+
+  document.getElementById('videoTitle').value = '';
+  document.getElementById('videoFile').value = '';
+  document.getElementById('preview').style.display = 'none';
+
+  alert('Video added to this browser!');
+  showPage('all');
+}
+
+function displayVideos() {
+  const all = document.getElementById('allVideos');
+  const shorts = document.getElementById('shortVideos');
+
+  all.innerHTML = '';
+  shorts.innerHTML = '';
+
+  videos.forEach(video => {
+    const card = document.createElement('div');
+    card.className = 'video-card';
+
+    const player = document.createElement('video');
+    player.src = video.url;
+    player.controls = true;
+    player.playsInline = true;
+
+    const info = document.createElement('div');
+    info.className = 'video-info';
+
+    const heading = document.createElement('h3');
+    heading.textContent = video.title;
+
+    const description = document.createElement('p');
+    description.textContent = 'Posted on STRIPON';
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+
+    const like = document.createElement('button');
+    like.textContent = '♥ Like';
+    like.onclick = () => {
+      like.textContent = '♥ Liked';
+    };
+
+    actions.appendChild(like);
+    info.append(heading, description, actions);
+    card.append(player, info);
+    all.appendChild(card);
+
+    if (video.short) {
+      shorts.appendChild(card.cloneNode(true));
+    }
+  });
+
+  document.getElementById('videoCount').textContent =
+    'Videos posted: ' + videos.length;
+}
+
+function searchVideos() {
+  const query = document.getElementById('search').value.toLowerCase();
+
+  document.querySelectorAll('#allVideos .video-card').forEach(card => {
+    card.style.display =
+      card.textContent.toLowerCase().includes(query) ? 'block' : 'none';
+  });
+}
+
+function changeUsername() {
+  const name = document.getElementById('newUsername').value.trim();
+
+  if (!name) {
+    alert('Enter a username.');
+    return;
+  }
+
+  document.getElementById('username').textContent = name;
+  document.getElementById('newUsername').value = '';
+}
+
+function openGame(url) {
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
 </script>
 
 </body>
