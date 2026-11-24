@@ -1,1 +1,617 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STRIPON - Watch, Create, Connect</title>
+
+<style>
+:root {
+  --bg:#0c0d12;
+  --panel:#171922;
+  --card:#20232e;
+  --text:#ffffff;
+  --muted:#a7a9b5;
+  --accent:#8b5cf6;
+  --pink:#ec4899;
+}
+body.light {
+  --bg:#f4f5fa;
+  --panel:#ffffff;
+  --card:#e9eaf1;
+  --text:#171824;
+  --muted:#606273;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+header {
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:var(--panel);
+  padding:13px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.logo {
+  font-size:23px;
+  font-weight:900;
+  letter-spacing:1px;
+  color:var(--accent);
+}
+.search {
+  flex:1;
+  max-width:450px;
+  padding:11px;
+  border-radius:25px;
+  border:1px solid #444;
+  background:var(--bg);
+  color:var(--text);
+  min-width:0;
+}
+button {
+  border:0;
+  cursor:pointer;
+  border-radius:10px;
+  padding:10px 13px;
+  color:white;
+  background:var(--accent);
+  font-weight:bold;
+}
+button:active {transform:scale(.96)}
+main {
+  max-width:1100px;
+  margin:auto;
+  padding:15px;
+  padding-bottom:90px;
+}
+.page {display:none}
+.page.active {display:block}
+h2 {margin-top:12px}
+.muted {color:var(--muted)}
+.video-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:15px;
+}
+.video-card {
+  overflow:hidden;
+  border-radius:15px;
+  background:var(--panel);
+}
+.video-card video,
+.video-card img {
+  width:100%;
+  aspect-ratio:16/9;
+  object-fit:cover;
+  background:#08080c;
+  display:block;
+}
+.video-info {padding:12px}
+.video-info h3 {margin:0 0 7px;font-size:16px}
+.actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:10px;
+}
+.actions button {
+  background:var(--card);
+  color:var(--text);
+}
+.actions button.selected {background:var(--accent);color:white}
+.bottom-nav {
+  position:fixed;
+  z-index:20;
+  bottom:0;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:space-around;
+  background:var(--panel);
+  border-top:1px solid #343642;
+  padding:9px 2px calc(9px + env(safe-area-inset-bottom));
+}
+.nav-item {
+  background:transparent;
+  color:var(--muted);
+  padding:7px 5px;
+  font-size:11px;
+  flex:1;
+}
+.nav-item span {display:block;font-size:20px;margin-bottom:3px}
+.nav-item.active {color:var(--accent)}
+.upload-box,.profile-box,.settings {
+  background:var(--panel);
+  padding:18px;
+  border-radius:16px;
+  margin-bottom:16px;
+}
+input,textarea {
+  width:100%;
+  padding:12px;
+  margin:7px 0;
+  border-radius:9px;
+  border:1px solid #454754;
+  background:var(--bg);
+  color:var(--text);
+}
+textarea {min-height:80px}
+.preview {
+  width:100%;
+  max-height:300px;
+  margin-top:10px;
+  border-radius:12px;
+}
+.shorts-container {
+  max-width:430px;
+  margin:auto;
+}
+.short-card {
+  position:relative;
+  margin:15px auto;
+  height:min(72vh,700px);
+  background:#000;
+  border-radius:18px;
+  overflow:hidden;
+}
+.short-card video {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+.short-details {
+  position:absolute;
+  bottom:12px;
+  left:12px;
+  right:12px;
+  padding:35px 10px 10px;
+  background:linear-gradient(transparent,#000b);
+  color:white;
+}
+.short-details button {background:#ffffff25}
+.avatar {
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--pink));
+  display:grid;
+  place-items:center;
+  font-size:35px;
+  margin-bottom:12px;
+  overflow:hidden;
+}
+.avatar img {width:100%;height:100%;object-fit:cover}
+.profile-stats {
+  display:flex;
+  gap:25px;
+  margin:18px 0;
+}
+.profile-stats strong {display:block;font-size:20px}
+.empty {
+  text-align:center;
+  padding:35px 10px;
+  color:var(--muted);
+}
+#toast {
+  position:fixed;
+  bottom:85px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#292b36;
+  color:white;
+  padding:12px 18px;
+  border-radius:20px;
+  display:none;
+  z-index:50;
+}
+@media(max-width:500px) {
+  main {padding:10px}
+  .video-grid {grid-template-columns:1fr}
+  header {gap:7px}
+  .logo {font-size:19px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">STRIPON</div>
+  <input class="search" id="searchInput"
+    placeholder="Search videos..."
+    oninput="renderAll()">
+  <button onclick="toggleTheme()">☾</button>
+</header>
+
+<main>
+
+<!-- ALL -->
+<section class="page active" id="all">
+  <h2>Discover videos</h2>
+  <p class="muted">Explore what's happening on STRIPON.</p>
+  <div class="video-grid" id="allVideos"></div>
+</section>
+
+<!-- SHORTS -->
+<section class="page" id="shorts">
+  <h2>STRIPON Shorts</h2>
+  <p class="muted">Short videos, quick entertainment.</p>
+  <div class="shorts-container" id="shortVideos"></div>
+</section>
+
+<!-- POSTING -->
+<section class="page" id="posting">
+  <h2>Create something</h2>
+  <div class="upload-box">
+    <h3>Upload your video</h3>
+    <input id="videoTitle" placeholder="Video title">
+    <textarea id="videoDescription"
+      placeholder="Write a description..."></textarea>
+    <label class="muted">Choose a video from your phone</label>
+    <input type="file" id="videoFile" accept="video/*">
+    <video id="preview" class="preview" controls hidden></video>
+    <button onclick="publishVideo()">Publish video</button>
+    <p class="muted">Demo uploads are stored in this browser only.</p>
+  </div>
+</section>
+
+<!-- GAMING -->
+<section class="page" id="gaming">
+  <h2>Gaming zone 🎮</h2>
+  <p class="muted">Discover gaming content.</p>
+  <div class="video-grid" id="gamingVideos"></div>
+</section>
+
+<!-- PROFILE -->
+<section class="page" id="profile">
+  <h2>Your profile</h2>
+  <div class="profile-box">
+    <div class="avatar" id="avatar">S</div>
+    <input id="username" placeholder="Your username">
+    <textarea id="bio" placeholder="Tell people about yourself"></textarea>
+    <label class="muted">Profile picture</label>
+    <input type="file" id="avatarFile" accept="image/*">
+    <button onclick="saveProfile()">Save profile</button>
+
+    <div class="profile-stats">
+      <div><strong id="uploadCount">0</strong><span class="muted">Videos</span></div>
+      <div><strong id="likeCount">0</strong><span class="muted">Likes</span></div>
+      <div><strong id="savedCount">0</strong><span class="muted">Saved</span></div>
+    </div>
+  </div>
+
+  <div class="settings">
+    <h3>My library</h3>
+    <button onclick="showLibrary('uploads')">My uploads</button>
+    <button onclick="showLibrary('liked')">Liked videos</button>
+    <button onclick="showLibrary('saved')">Saved videos</button>
+    <div id="library"></div>
+  </div>
+
+  <div class="settings">
+    <h3>Settings</h3>
+    <button onclick="toggleTheme()">Switch appearance</button>
+    <button onclick="clearDemoData()">Clear demo data</button>
+  </div>
+</section>
+
+</main>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="navigate('all',this)">
+    <span>⌂</span>All
+  </button>
+  <button class="nav-item" onclick="navigate('shorts',this)">
+    <span>▶</span>Shorts
+  </button>
+  <button class="nav-item" onclick="navigate('posting',this)">
+    <span>＋</span>Posting
+  </button>
+  <button class="nav-item" onclick="navigate('gaming',this)">
+    <span>🎮</span>Gaming
+  </button>
+  <button class="nav-item" onclick="navigate('profile',this)">
+    <span>●</span>Profile
+  </button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+const starterVideos = [
+  {
+    id:1,
+    title:"Welcome to STRIPON",
+    description:"Discover videos and creators.",
+    category:"all",
+    url:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    owner:"STRIPON"
+  },
+  {
+    id:2,
+    title:"Explore the world",
+    description:"Enjoy creative videos.",
+    category:"shorts",
+    url:"https://www.w3schools.com/html/mov_bbb.mp4",
+    owner:"STRIPON"
+  },
+  {
+    id:3,
+    title:"Gaming community",
+    description:"Welcome gamers!",
+    category:"gaming",
+    url:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    owner:"STRIPON"
+  }
+];
+
+let videos = starterVideos.map(v=>({...v}));
+let liked = [];
+let saved = [];
+let comments = {};
+let user = {name:"STRIPON User",bio:"Welcome to my profile!",avatar:""};
+let previewUrl = "";
+
+function navigate(id,button) {
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
+  button.classList.add("active");
+  if(id==="profile") updateProfile();
+}
+
+function toast(message) {
+  const el=document.getElementById("toast");
+  el.textContent=message;
+  el.style.display="block";
+  setTimeout(()=>el.style.display="none",2200);
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("light");
+  localStorage.setItem("striponTheme",
+    document.body.classList.contains("light")?"light":"dark");
+}
+
+if(localStorage.getItem("striponTheme")==="light") {
+  document.body.classList.add("light");
+}
+
+function card(video) {
+  const isLiked=liked.includes(video.id);
+  const isSaved=saved.includes(video.id);
+  return `
+  <article class="video-card">
+    <video src="${video.url}" controls playsinline preload="metadata"></video>
+    <div class="video-info">
+      <h3>${escapeHTML(video.title)}</h3>
+      <p class="muted">${escapeHTML(video.description||"")}</p>
+      <p class="muted">By ${escapeHTML(video.owner||"Creator")}</p>
+      <div class="actions">
+        <button class="${isLiked?'selected':''}"
+          onclick="toggleLike(${video.id})">♥ ${isLiked?'Liked':'Like'}</button>
+        <button class="${isSaved?'selected':''}"
+          onclick="toggleSave(${video.id})">☆ ${isSaved?'Saved':'Save'}</button>
+        <button onclick="commentVideo(${video.id})">Comment</button>
+      </div>
+      <div class="muted">${comments[video.id]?.length||0} comments</div>
+    </div>
+  </article>`;
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  })[char]);
+}
+
+function renderAll() {
+  const query=document.getElementById("searchInput").value.toLowerCase();
+  const matches=videos.filter(v=>
+    (v.title+" "+v.description+" "+v.owner).toLowerCase().includes(query)
+  );
+
+  document.getElementById("allVideos").innerHTML=
+    matches.map(card).join("") || '<div class="empty">No videos found.</div>';
+
+  document.getElementById("gamingVideos").innerHTML=
+    matches.filter(v=>v.category==="gaming").map(card).join("") ||
+    '<div class="empty">No gaming videos yet.</div>';
+
+  document.getElementById("shortVideos").innerHTML=
+    matches.filter(v=>v.category==="shorts").map(shortCard).join("") ||
+    '<div class="empty">No shorts yet.</div>';
+}
+
+function shortCard(video) {
+  return `
+  <div class="short-card">
+    <video src="${video.url}" controls playsinline loop></video>
+    <div class="short-details">
+      <strong>${escapeHTML(video.title)}</strong>
+      <p>${escapeHTML(video.description||"")}</p>
+      <button onclick="toggleLike(${video.id})">♥ Like</button>
+      <button onclick="toggleSave(${video.id})">☆ Save</button>
+    </div>
+  </div>`;
+}
+
+function toggleLike(id) {
+  liked=liked.includes(id)?liked.filter(x=>x!==id):[...liked,id];
+  saveData();
+  renderAll();
+  updateProfile();
+}
+
+function toggleSave(id) {
+  saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];
+  saveData();
+  renderAll();
+  updateProfile();
+}
+
+function commentVideo(id) {
+  const message=prompt("Write your comment:");
+  if(!message || !message.trim()) return;
+  comments[id]=comments[id]||[];
+  comments[id].push(message.trim().slice(0,300));
+  saveData();
+  renderAll();
+  toast("Comment added");
+}
+
+document.getElementById("videoFile").addEventListener("change",function() {
+  const file=this.files[0];
+  const preview=document.getElementById("preview");
+  if(!file) return;
+
+  if(!file.type.startsWith("video/")) {
+    toast("Please choose a video file");
+    this.value="";
+    return;
+  }
+  if(file.size>100*1024*1024) {
+    toast("Demo upload limit is 100 MB");
+    this.value="";
+    return;
+  }
+  if(previewUrl) URL.revokeObjectURL(previewUrl);
+  previewUrl=URL.createObjectURL(file);
+  preview.src=previewUrl;
+  preview.hidden=false;
+});
+
+function publishVideo() {
+  const file=document.getElementById("videoFile").files[0];
+  const title=document.getElementById("videoTitle").value.trim();
+  const description=document.getElementById("videoDescription").value.trim();
+
+  if(!file || !title) {
+    toast("Add a title and choose a video");
+    return;
+  }
+  if(!file.type.startsWith("video/") || file.size>100*1024*1024) {
+    toast("Choose a valid video under 100 MB");
+    return;
+  }
+
+  const url=URL.createObjectURL(file);
+  const video={
+    id:Date.now(),
+    title,
+    description,
+    category:"all",
+    url,
+    owner:user.name
+  };
+  videos.unshift(video);
+
+  document.getElementById("videoTitle").value="";
+  document.getElementById("videoDescription").value="";
+  document.getElementById("videoFile").value="";
+  document.getElementById("preview").hidden=true;
+  previewUrl="";
+  renderAll();
+  saveData();
+  toast("Video added to this browser!");
+}
+
+function saveProfile() {
+  user.name=document.getElementById("username").value.trim()||"STRIPON User";
+  user.bio=document.getElementById("bio").value.trim();
+  const file=document.getElementById("avatarFile").files[0];
+
+  if(file) {
+    if(!file.type.startsWith("image/") || file.size>5*1024*1024) {
+      toast("Choose an image under 5 MB");
+      return;
+    }
+    const reader=new FileReader();
+    reader.onload=()=>{
+      user.avatar=reader.result;
+      saveData();
+      updateProfile();
+      toast("Profile updated");
+    };
+    reader.readAsDataURL(file);
+  } else {
+    saveData();
+    updateProfile();
+    toast("Profile updated");
+  }
+}
+
+function updateProfile() {
+  document.getElementById("username").value=user.name;
+  document.getElementById("bio").value=user.bio;
+  document.getElementById("avatar").innerHTML=user.avatar?
+    `<img src="${user.avatar}" alt="Profile picture">`:"S";
+  document.getElementById("uploadCount").textContent=
+    videos.filter(v=>v.owner===user.name).length;
+  document.getElementById("likeCount").textContent=liked.length;
+  document.getElementById("savedCount").textContent=saved.length;
+}
+
+function showLibrary(type) {
+  let list=[];
+  if(type==="uploads") list=videos.filter(v=>v.owner===user.name);
+  if(type==="liked") list=videos.filter(v=>liked.includes(v.id));
+  if(type==="saved") list=videos.filter(v=>saved.includes(v.id));
+
+  document.getElementById("library").innerHTML=
+    list.map(card).join("")||'<p class="empty">Nothing here yet.</p>';
+}
+
+function saveData() {
+  // Save text-based demo data only.
+  // Large video files are not uploaded to a server.
+  const safeVideos=videos.filter(v=>v.url.startsWith("https://"));
+  const data={
+    liked,saved,comments,user,
+    videos:safeVideos
+  };
+  try {
+    localStorage.setItem("striponData",JSON.stringify(data));
+  } catch(e) {
+    toast("Browser storage is full");
+  }
+}
+
+function loadData() {
+  try {
+    const data=JSON.parse(localStorage.getItem("striponData")||"null");
+    if(!data) return;
+    liked=data.liked||[];
+    saved=data.saved||[];
+    comments=data.comments||{};
+    user=data.user||user;
+    videos=[...videos,...(data.videos||[])];
+  } catch(e) {
+    console.log("Could not load saved demo data");
+  }
+}
+
+function clearDemoData() {
+  if(!confirm("Clear your saved demo profile and interactions?")) return;
+  localStorage.removeItem("striponData");
+  location.reload();
+}
+
+loadData();
+renderAll();
+updateProfile();
+</script>
+
+</body>
+  </html>
+  
